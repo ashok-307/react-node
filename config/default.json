@@ -1,0 +1,6 @@
+{
+    "mongoURI": "mongodb+srv://ashokChakram307:Idonotknow1@reactconnector.9dyoa5t.mongodb.net/?retryWrites=true&w=majority",
+    "jwtSecretToken": "jwtToken",
+    "githubClientID": "38480893f259fd312c91",
+    "githubSecret": "782f5e3796f3d0706bff8ef785cb49f1a02c5566"
+}

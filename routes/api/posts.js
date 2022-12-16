@@ -31,7 +31,6 @@ router.post('/', [auth, [
 
             return res.json(post);
         } catch(err) {
-            console.log(err.message);
             return res.status(500).send('Server Error');
         }
     }
@@ -45,7 +44,6 @@ router.get('/', auth, async (req, res) => {
         const posts = await Post.find().sort({ date: -1 });
         return res.json(posts);
     } catch (err) {
-        console.log(err.message);
         return res.status(500).send('Server Error');
     }
 });
@@ -61,7 +59,6 @@ router.get('/:post_id', auth, async (req, res) => {
         }
         return res.json(post);
     } catch (err) {
-        console.log(err.message);
         if (err.kind === 'ObjectId') {
             return res.status(404).json({ msg: 'Post with the given ID is found.' });
         }
@@ -86,7 +83,6 @@ router.delete('/:post_id', auth, async (req, res) => {
         await post.remove();
         return res.json({msg : 'Post removed successfully '});
     } catch (err) {
-        console.log(err.message);
         if (err.kind === 'ObjectId') {
             return res.status(404).json({ msg: 'Post with the given ID is found.' });
         }
@@ -114,7 +110,6 @@ router.put('/like/:id', auth, async(req, res) => {
 
         return res.json(post.like);
     } catch (err){
-        console.log(err.message);
         return res.status(500).send('Server Error');
     }
 });
@@ -142,7 +137,6 @@ router.put('/dislike/:id', auth, async(req, res) => {
 
         return res.json(post.like);
     } catch (err){
-        console.log(err.message);
         return res.status(500).send('Server Error');
     }
 });
@@ -174,7 +168,6 @@ router.post('/comment/:id', [auth, [
 
             return res.json(post.comments);
         } catch(err) {
-            console.log(err.message);
             return res.status(500).send('Server Error');
         }
     }
@@ -205,7 +198,6 @@ router.delete('/comment/:post_id/:comment_id', auth, async (req, res) => {
 
         return res.json(post.comments);
     } catch(err) {
-        console.log(err.message);
         return res.status(500).send('Server Error');
     }
 }

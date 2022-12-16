@@ -33,7 +33,6 @@ router.post('/', [
         let { email, password } = req.body;
         try {
             let user = await User.findOne({ email });
-            console.log('User :', user);
             if (!user) {
                 return res.status(400).json({ errors: [{ msg: 'Invalid email or password.' }] })
             }
@@ -50,11 +49,10 @@ router.post('/', [
 
             jwt.sign(payload, config.get('jwtSecretToken'), {expiresIn: 360000 }, (err, token) => {
                 if (err) {throw err;}
-                res.json({ token });
+                res.json({ token, user: { name: user.name, email: user.email, avatar: user.avatar, date: user.date, id: user._id } });
             });
         
         } catch (error) {
-            console.log(error.message);
             return res.status(500).send('Server Error');
         }
     }

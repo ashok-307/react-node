@@ -228,7 +228,7 @@ const slices = createSlice({
             state.profile = action.payload;
         },
         [getProfileByUserIdRejected]: (state: ProfileState, action: any) => {
-            state.isLoading = true;
+            state.isLoading = false;
             state.error = {};
             state.profile = null;
             state.repos = [];

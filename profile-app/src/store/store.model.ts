@@ -3,4 +3,5 @@ export interface RootStoreModel {
     alertReducer: any[];
     profileReducer: any;
     postReducer: any;
+    authSlices: any;
 }

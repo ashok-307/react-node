@@ -9,4 +9,8 @@ export enum RouteAPI {
     Profiles = '/profiles',
     Profile = '/profile/',
     Posts = '/posts',
+    Pages = '/pages',
+    About = '/pages/about',
+    Service = '/pages/service',
+    ContactUs = '/pages/contact-us',
 }

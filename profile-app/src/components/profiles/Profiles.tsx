@@ -1,19 +1,37 @@
 import React, { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { LoaderService } from '../../shared/services/Loader.service';
-import { getProfilesAPI } from '../../store/slices/profile/profile';
+import { useGetProfilesAPIMutation } from '../../store/api/profile.api';
+// import { getProfilesAPI } from '../../store/slices/profile/profile';
 import ProfileItem from './ProfileItem';
 
 function Profiles() {
   let { profiles } = useSelector((state: any) => state.profileReducer);
-  let dispatchEvent = useDispatch<any>();
+  let [onGetProfilesAPI] = useGetProfilesAPIMutation();
+  let abortProfiles: any = null;
 
-  useEffect(() => {
+  const getProfiles = () => {
     LoaderService.openModel('profiles1');
-    dispatchEvent(getProfilesAPI()).then(() => {
+    abortProfiles = onGetProfilesAPI();
+    abortProfiles.unwrap().then(() => {
+      LoaderService.closeModel('profiles1');
+    }).catch(() => {
       LoaderService.closeModel('profiles1');
     });
-  }, [dispatchEvent]);
+  }
+
+  useEffect(() => {
+    getProfiles();
+    // dispatchEvent(getProfilesAPI()).then(() => {
+    //   LoaderService.closeModel('profiles1');
+    // });
+    return () => {
+      if (abortProfiles) {
+        abortProfiles.abort();
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   return (
     <div className="container">
       <h1 className="large text-primary">Developers</h1>

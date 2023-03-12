@@ -69,7 +69,7 @@ export const logoutUserAPI = createAsyncThunk(
         return new Promise<void>((resolve) => {
             StorageService.removeLocal(StorageAPI.Login_User);
             StorageService.removeLocal(StorageAPI.Login_User_Token);
-            thunkAPI.dispatch(clearProfileAPI);
+            thunkAPI.dispatch(clearProfileAPI());
             resolve();
         })
     }

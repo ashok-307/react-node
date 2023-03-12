@@ -1,30 +1,32 @@
 import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { NavLink } from 'react-router-dom';
 import { RouteAPI } from '../../core/constants/Route.api';
-import { logoutUserAPI } from '../../store/slices/auth/auth';
+import useLogout from '../../shared/hooks/useLogout';
+// import { logoutUserAPI } from '../../store/slices/auth/auth';
 
 const Navbar = () => {
   const { isAuthenticated } = useSelector((state: any) => state.authReducer);
-  const dispatchEvent = useDispatch<any>();
-  const navigate = useNavigate();
+  const onLogOut = useLogout();
 
   let onLogout = (e: any) => {
     e.preventDefault();
-    dispatchEvent(logoutUserAPI());
-    navigate(RouteAPI.Login);
+    onLogOut();
   }
 
   let authenticateLinks = (
     <ul>
       <li>
-        <NavLink to="/profiles">Developers</NavLink>
+        <NavLink to={RouteAPI.Pages}>Pages</NavLink>
       </li>
       <li>
-        <NavLink to="/posts">Posts</NavLink>
+        <NavLink to={RouteAPI.Profiles}>Developers</NavLink>
       </li>
       <li>
-        <NavLink to="/dashboard"><i className="fa fa-user"></i><span className='hide-sm'>{' '}Dashboard</span></NavLink>
+        <NavLink to={RouteAPI.Posts}>Posts</NavLink>
+      </li>
+      <li>
+        <NavLink to={RouteAPI.Dashboard}><i className="fa fa-user"></i><span className='hide-sm'>{' '}Dashboard</span></NavLink>
         </li>
       <li><a onClick={(e) => onLogout(e)} href="#!">Logout</a></li>
     </ul>
@@ -32,9 +34,9 @@ const Navbar = () => {
 
   let navLinks = (
     <ul>
-      <li><NavLink to="/profiles">Developers</NavLink></li>
-      <li><NavLink to="/register">Register</NavLink></li>
-      <li><NavLink to="/login">Login</NavLink></li>
+      <li><NavLink to={RouteAPI.Profiles}>Developers</NavLink></li>
+      <li><NavLink to={RouteAPI.Register}>Register</NavLink></li>
+      <li><NavLink to={RouteAPI.Login}>Login</NavLink></li>
     </ul>
   )
 

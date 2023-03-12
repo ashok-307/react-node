@@ -1,47 +1,60 @@
 import React, { Fragment } from 'react';
 import Moment from 'react-moment';
+import TableGrid from '../../shared/modules/TableGrid/TableGrid';
+import { TableCellAllProps } from '../../shared/modules/TableGrid/TableGrid.model';
 
 interface ExperienceProps {
     education: any[];
     onDelete: (data: any) => void;
 }
 function Education(props: ExperienceProps) {
-    let experiences = null;
-    if (props.education.length) {
-        experiences = props.education.map((edu: any) => (
-            <tr key={edu._id}>
-                <td>{edu.school}</td>
-                <td className="hide-sm">{edu.degree}</td>
-                <td className="hide-sm">
-                    <Moment format="YYYY/MM/DD">{edu.from}</Moment> {' - '} { edu.to === null ? ('Now') : (<Moment format="YYYY/MM/DD">{edu.to}</Moment>)}
-                </td>
-                <td>
-                    <button className="btn btn-danger" onClick={(e) => {
-                        e.preventDefault();
-                        props.onDelete(edu);
-                    }}>Delete</button>
-                </td>
-            </tr>
-        ));
-    } else {
-        experiences = (<tr>
-            <td>No Data found</td>
-        </tr>);
-    }
+    let fields: TableCellAllProps[] = [
+        {
+          field: 'school',
+          name: 'School',
+          isSortable: true
+        },
+        {
+          field: 'degree',
+          name: 'Degree',
+          isSortable: true
+        },
+        {
+          field: 'year',
+          name: 'Year',
+          isCustomBodyCell: true
+        },
+        {
+            field: 'action',
+            name: '',
+            isCustomBodyCell: true
+        },
+    ];
+
     return (
         <Fragment>
             <h2 className="my-2">Education Credentials</h2>
-            <table className="table">
-                <thead>
-                    <tr>
-                        <th>School</th>
-                        <th className="hide-sm">Degree</th>
-                        <th className="hide-sm">Years</th>
-                        <th />
-                    </tr>
-                </thead>
-                <tbody>{experiences}</tbody>
-            </table>
+            <TableGrid fields={fields} data={props.education || []} pagination={false} customBodyCell={(row: any, property: string) => {
+                return (
+                    <Fragment>
+                        {
+                            property === 'year' && (
+                            <span style={{ fontWeight: 'bold', color: '#555' }}>
+                                <Moment format="YYYY/MM/DD">{row.from}</Moment> {' - '} { row.to === null ? ('Now') : (<Moment format="YYYY/MM/DD">{row.to}</Moment>)}
+                            </span>
+                            )
+                        }
+                        {
+                            property === 'action' && (
+                                <button className="btn btn-danger" onClick={(e) => {
+                                    e.preventDefault();
+                                    props.onDelete(row);
+                                }}>Delete</button>
+                            )
+                        }
+                    </Fragment>
+                )
+            }} />
         </Fragment>
     )
 }

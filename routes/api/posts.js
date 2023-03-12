@@ -31,7 +31,7 @@ router.post('/', [auth, [
 
             return res.json(post);
         } catch(err) {
-            return res.status(500).send('Server Error');
+            return res.status(500).send({ errors: [{ msg: 'Server Error'}] });
         }
     }
 );
@@ -44,7 +44,7 @@ router.get('/', auth, async (req, res) => {
         const posts = await Post.find().sort({ date: -1 });
         return res.json(posts);
     } catch (err) {
-        return res.status(500).send('Server Error');
+        return res.status(500).send({ errors: [{ msg: 'Server Error'}] });
     }
 });
 
@@ -55,14 +55,14 @@ router.get('/:post_id', auth, async (req, res) => {
     try {
         const post = await Post.findById(req.params.post_id);
         if (!post) {
-            return res.status(404).json({ msg: 'Post with the given ID is found.' });
+            return res.status(404).json({errors: [{ msg: 'Post with the given ID is found.' }]});
         }
         return res.json(post);
     } catch (err) {
         if (err.kind === 'ObjectId') {
-            return res.status(404).json({ msg: 'Post with the given ID is found.' });
+            return res.status(404).json({errors: [{ msg: 'Post with the given ID is found.' }]});
         }
-        return res.status(500).send('Server Error');
+        return res.status(500).send({ errors: [{ msg: 'Server Error'}] });
     }
 });
 
@@ -74,19 +74,19 @@ router.delete('/:post_id', auth, async (req, res) => {
         const post = await Post.findById(req.params.post_id);
 
         if (!post) {
-            return res.status(400).json({ msg: 'Post with the given ID is found. '})
+            return res.status(400).json({errors: [{ msg: 'Post with the given ID is found. '}]})
         }
 
         if (post.user.toString() != req.user.id) {
-            return res.status(401).json({ msg: 'User not authorized.' });
+            return res.status(401).json({errors: [{ msg: 'User not authorized.' }]});
         }
         await post.remove();
         return res.json({msg : 'Post removed successfully '});
     } catch (err) {
         if (err.kind === 'ObjectId') {
-            return res.status(404).json({ msg: 'Post with the given ID is found.' });
+            return res.status(404).json({errors: [{ msg: 'Post with the given ID is found.' }]});
         }
-        return res.status(500).send('Server Error');
+        return res.status(500).send({ errors: [{ msg: 'Server Error'}] });
     }
 });
 
@@ -102,7 +102,7 @@ router.put('/like/:id', auth, async(req, res) => {
         if(
             post.like.filter(like => like.user.toString() === req.user.id).length > 0
         ){
-            return res.status(400).json({msg: 'Post already liked.'});
+            return res.status(400).json({errors: [{msg: 'Post already liked.'}]});
         }
         post.like.unshift({ user: req.user.id });
 
@@ -110,7 +110,7 @@ router.put('/like/:id', auth, async(req, res) => {
 
         return res.json(post.like);
     } catch (err){
-        return res.status(500).send('Server Error');
+        return res.status(500).send({ errors: [{ msg: 'Server Error'}] });
     }
 });
 
@@ -126,7 +126,7 @@ router.put('/dislike/:id', auth, async(req, res) => {
         if(
             post.like.filter(like => like.user.toString() === req.user.id).length === 0
         ){
-            return res.status(400).json({msg: 'Post has not yet been liked.'});
+            return res.status(400).json({errors: [{msg: 'Post has not yet been liked.'}]});
         }
         
         // Get remove index
@@ -137,7 +137,7 @@ router.put('/dislike/:id', auth, async(req, res) => {
 
         return res.json(post.like);
     } catch (err){
-        return res.status(500).send('Server Error');
+        return res.status(500).send({ errors: [{ msg: 'Server Error'}] });
     }
 });
 
@@ -168,7 +168,7 @@ router.post('/comment/:id', [auth, [
 
             return res.json(post.comments);
         } catch(err) {
-            return res.status(500).send('Server Error');
+            return res.status(500).send({ errors: [{ msg: 'Server Error'}] });
         }
     }
 );
@@ -184,11 +184,11 @@ router.delete('/comment/:post_id/:comment_id', auth, async (req, res) => {
         // Pull out comments
         const comment = post.comments.find(comment => comment.id === req.params.comment_id);
         if (!comment) {
-            return res.status(404).json({ msg: 'Comment does not exist' });
+            return res.status(404).json({errors: [{ msg: 'Comment does not exist' }]});
         }
         // Check user
         if (comment.user.toString() !== req.user.id) {
-            return res.status(401).json({ msg: 'User not authorized'});
+            return res.status(401).json({errors: [{ msg: 'User not authorized'}]});
         }
         // Remove Index
         const removeIndex = post.comments.findIndex(comment => comment.user.toString() === req.user.id);
@@ -198,7 +198,7 @@ router.delete('/comment/:post_id/:comment_id', auth, async (req, res) => {
 
         return res.json(post.comments);
     } catch(err) {
-        return res.status(500).send('Server Error');
+        return res.status(500).send({ errors: [{ msg: 'Server Error'}] });
     }
 }
 );

@@ -31,22 +31,32 @@ export const removeAlertAPI = createAsyncThunk(
 
 const InitialState: AlertState[] = [];
 
-const setAlertFulfilled: any = setAlertAPI.fulfilled;
-const removeAlertFulfilled: any = removeAlertAPI.fulfilled;
+// const setAlertFulfilled: any = setAlertAPI.fulfilled;
+// const removeAlertFulfilled: any = removeAlertAPI.fulfilled;
 
 const slices = createSlice({
     name: 'alertSlice',
     initialState: InitialState,
     reducers: {},
-    extraReducers: {
-        [setAlertFulfilled]: (state: any[], action) => {
-            state.push(action.payload);
-        },
+    // extraReducers: {
+    //     [setAlertFulfilled]: (state: any[], action) => {
+    //         state.push(action.payload);
+    //     },
 
-        [removeAlertFulfilled]: (state: any[], action) => {
+    //     [removeAlertFulfilled]: (state: any[], action) => {
+    //         state = state.filter(alert => { return alert.id !== action.payload; });
+    //         return state;
+    //     },
+    // }
+    extraReducers: (builder) => {
+        builder.addCase(setAlertAPI.fulfilled, (state, action) => {
+            state.push(action.payload);
+        })
+
+        builder.addCase(removeAlertAPI.fulfilled, (state, action) => {
             state = state.filter(alert => { return alert.id !== action.payload; });
             return state;
-        },
+        })
     }
 });
 

@@ -78,6 +78,10 @@ table {
   color: var(--dark-color);
 }
 
+.text-danger {
+  color: var(--danger-color);
+}
+
 /* Padding */
 .p {
   padding: 0.5rem;
@@ -250,6 +254,7 @@ table {
 }
 
 .form input[type='text'],
+.form input[type='number'],
 .form input[type='email'],
 .form input[type='password'],
 .form input[type='date'],
@@ -257,9 +262,9 @@ table {
 .form textarea {
   display: block;
   width: 100%;
-  padding: 0.4rem;
+  /* padding: 0.4rem; */
   font-size: 1.2rem;
-  border: 1px solid #ccc;
+  /* border: 1px solid #ccc; */
 }
 
 .form input[type='submit'],
@@ -494,7 +499,7 @@ button {
 
 /* Spinner Styles */
 .load {
-  display: inline-block;
+  display: inline;
   position: relative;
   /* top: 4px; */
   left: 6px;
@@ -503,6 +508,27 @@ button {
   color: white;
 }
 
+/* Menus */
+.menus {
+  display: flex;
+  align-items: center;
+  background-color: #555;
+}
+.menus li {
+  text-align: center;
+  /* margin-right: 20px; */
+}
+.menus li:hover, .menus li.active {
+  background-color: #eee;
+}
+.menus li:hover a, .menus li.active a {
+  color: #000;
+}
+.menus li a {
+  display: inline-block;
+  color: #fff;
+  padding: 10px 15px;
+}
 /* Mobile Styles */
 @media (max-width: 700px) {
   .container {

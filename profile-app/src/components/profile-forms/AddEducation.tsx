@@ -1,44 +1,56 @@
-import React, { ChangeEvent, FormEvent, useEffect, useState } from 'react'
-import { useDispatch } from 'react-redux';
+import React, { useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { RouteAPI } from '../../core/constants/Route.api';
-import { addEducationAPI } from '../../store/slices/profile/profile';
+import FormControls from '../../shared/modules/Forms/FormControls';
+import { LoaderService } from '../../shared/services/Loader.service';
+import { useAddEducationAPIMutation } from '../../store/api/profile.api';
+// import { addEducationAPI } from '../../store/slices/profile/profile';
 
 function AddEducation() {
-    let [formData, setFormData] = useState({
-        school: '',
-        degree: '',
-        fieldofstudy: '',
-        from: '',
-        to: '',
-        current: false,
-        description: ''
-    });
+
     let [toDateDisable, setToDateDisable] = useState(false);
-    let {
-        school,
-        degree,
-        fieldofstudy,
-        from,
-        to,
-        current,
-        description
-    } = formData;
-    let dispatchEvent = useDispatch<any>();
+    let [onAddEducation] = useAddEducationAPIMutation();
+    let abortAddEducation: any = null;
+
+    let { handleSubmit, control, formState: {errors}, setValue, getValues} = useForm({
+        defaultValues: {
+            school: '',
+            degree: '',
+            fieldofstudy: '',
+            from: '',
+            to: '',
+            current: false,
+            description: ''
+        }
+    });
+    
+    let customErrorMessage: any = {};
+
+    // let dispatchEvent = useDispatch<any>();
     let navigate = useNavigate();
-    useEffect(() => {
-        // addEducationAPI
+
+    let onFormSubmit = (e: any) => {
+        LoaderService.openModel('addEducation1', {appendTo: 'inline', appendToElement: '.load-education'});
+        abortAddEducation = onAddEducation(e);
+        abortAddEducation.unwrap().then(() => {
+            LoaderService.closeModel('addEducation1');
+            navigate(RouteAPI.Dashboard);
+        }).catch(() => {
+            LoaderService.closeModel('addEducation1');
+        })
+        // dispatchEvent(addEducationAPI({data: e})).then((res: any) => {
+        //     if (!res.error) {
+        //         navigate(RouteAPI.Dashboard);
+        //     }
+        // })
+    };
+
+    useEffect(() => () => {
+        abortAddEducation && abortAddEducation.abort();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    let onFormChange = (e: ChangeEvent<any>) => setFormData({...formData, [e.target.name]: e.target.value});
-    let onFormSubmit = (e: FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        dispatchEvent(addEducationAPI({data: formData})).then((res: any) => {
-            if (!res.error) {
-                navigate(RouteAPI.Dashboard);
-            }
-        })
-    }
     return (
         <section className="container">
             <h1 className="large text-primary">
@@ -49,79 +61,110 @@ function AddEducation() {
                 you have attended
             </p>
             <small>* = required field</small>
-            <form className="form" onSubmit={e => onFormSubmit(e)}>
+            <form className="form" onSubmit={handleSubmit(onFormSubmit)}>
                 <div className="form-group">
-                    <input
-                        type="text"
-                        placeholder="* School or Bootcamp"
-                        name="school"
-                        value={school}
-                        onChange={(e) => onFormChange(e)}
-                        required
+                    <FormControls
+                        name="school" 
+                        elementId="school"
+                        control={control} 
+                        label="School or Bootcamp *" 
+                        rules={{ required: true }}
+                        isError={errors.school ? {
+                            type: errors.school.type, 
+                            message: customErrorMessage['school'] && customErrorMessage['school'][errors.school.type] ? customErrorMessage['school'][errors.school.type] : errors.school.message
+                        } : undefined}
                     />
                 </div>
                 <div className="form-group">
-                    <input
-                        type="text"
-                        placeholder="* Degree or Certificate"
-                        name="degree"
-                        value={degree}
-                        onChange={(e) => onFormChange(e)}
-                        required
+                    <FormControls
+                        name="degree" 
+                        elementId="degree"
+                        control={control} 
+                        label="Degree or Certificate *" 
+                        rules={{ required: true }}
+                        isError={errors.degree ? {
+                            type: errors.degree.type, 
+                            message: customErrorMessage['degree'] && customErrorMessage['degree'][errors.degree.type] ? customErrorMessage['degree'][errors.degree.type] : errors.degree.message
+                        } : undefined}
                     />
                 </div>
                 <div className="form-group">
-                    <input 
-                        type="text" 
-                        placeholder="Field Of Study" 
+                    <FormControls
                         name="fieldofstudy" 
-                        value={fieldofstudy}
-                        onChange={(e) => onFormChange(e)}
+                        elementId="fieldofstudy"
+                        control={control} 
+                        label="Field Of Study" 
+                        isError={errors.fieldofstudy ? {
+                            type: errors.fieldofstudy.type, 
+                            message: customErrorMessage['fieldofstudy'] && customErrorMessage['fieldofstudy'][errors.fieldofstudy.type] ? customErrorMessage['fieldofstudy'][errors.fieldofstudy.type] : errors.fieldofstudy.message
+                        } : undefined}
                     />
                 </div>
                 <div className="form-group">
                     <h4>From Date</h4>
-                    <input 
-                        type="date" 
+                    <FormControls
                         name="from" 
-                        value={from}
-                        onChange={(e) => onFormChange(e)} 
+                        elementId="from"
+                        control={control} 
+                        inputType="datetime-local"
+                        label="From" 
+                        rules={{ required: true }}
+                        isError={errors.from ? {
+                            type: errors.from.type, 
+                            message: customErrorMessage['from'] && customErrorMessage['from'][errors.from.type] ? customErrorMessage['from'][errors.from.type] : errors.from.message
+                        } : undefined}
                     />
                 </div>
                 <div className="form-group">
                     <p>
-                        <input 
-                            type="checkbox" 
+                        <FormControls 
                             name="current" 
-                            checked={current}
-                            onChange={(e) => {
-                                setFormData({...formData, current: !current});
+                            elementId="current"
+                            control={control} 
+                            elementType="checkbox" 
+                            customLabel="Current School or Bootcamp"
+                            onControlChange={(v) => {
+                                setValue('current', !getValues().current);
                                 setToDateDisable(!toDateDisable);
-                            }} 
-                        /> Current School or Bootcamp
+                                return v.target.checked;
+                            }}
+                            isError={errors.current ? {
+                                type: errors.current.type, 
+                                message: customErrorMessage['current'] && customErrorMessage['current'][errors.current.type] ? customErrorMessage['current'][errors.current.type] : errors.current.message
+                            } : undefined}  
+                        />
                     </p>
                 </div>
                 <div className="form-group">
                     <h4>To Date</h4>
-                    <input 
-                        type="date" 
-                        name="to"
-                        value={to}
-                        onChange={(e) => onFormChange(e)} 
+                    <FormControls
+                        name="to" 
+                        elementId="to"
+                        control={control} 
+                        inputType="datetime-local"
+                        label="To" 
                         disabled={toDateDisable}
+                        isError={errors.to ? {
+                            type: errors.to.type, 
+                            message: customErrorMessage['to'] && customErrorMessage['to'][errors.to.type] ? customErrorMessage['to'][errors.to.type] : errors.to.message
+                        } : undefined}
                     />
                 </div>
                 <div className="form-group">
-                    <textarea
-                        name="description"
-                        cols={30}
-                        rows={5}
-                        placeholder="Program Description"
-                        value={description}
-                        onChange={(e) => onFormChange(e)} 
-                    ></textarea>
+                    <FormControls 
+                        name="description" 
+                        elementId="description"
+                        control={control} 
+                        elementType="textarea" 
+                        label="Program Description"
+                        isError={errors.description ? {
+                            type: errors.description.type, 
+                            message: customErrorMessage['description'] && customErrorMessage['description'][errors.description.type] ? customErrorMessage['description'][errors.description.type] : errors.description.message
+                        } : undefined}
+                    />
                 </div>
-                <input type="submit" className="btn btn-primary my-1" />
+                {/* <input type="submit" className="btn btn-primary my-1" /> */}
+                <button className="btn btn-primary my-1">Submit <span className="load load-education"></span></button>
                 <NavLink className="btn btn-light my-1" to={RouteAPI.Dashboard}>Go Back</NavLink>
             </form>
         </section>

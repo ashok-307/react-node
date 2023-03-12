@@ -1,23 +1,35 @@
 import React, { Fragment, useEffect } from 'react'
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import Alert from '../../shared/components/Alert';
-import { LoaderService } from '../../shared/services/Loader.service';
-import { getPostsAPI } from '../../store/slices/post/post';
+// import { LoaderService } from '../../shared/services/Loader.service';
+import { useGetPostsAPIMutation } from '../../store/api/post.api';
+// import { getPostsAPI } from '../../store/slices/post/post';
 import PostForm from './PostForm';
 import PostItem from './PostItem';
 
 function Posts() {
-    let dispatchEvent = useDispatch<any>();
+    // let dispatchEvent = useDispatch<any>();
     let { posts } = useSelector((state: any) => state.postReducer);
+    let [getAllPosts] = useGetPostsAPIMutation();
+    let abortGetPosts: any = null;
 
     let getPosts = () => {
-        LoaderService.openModel('posts1');
-        dispatchEvent(getPostsAPI()).then(() => {
-            LoaderService.closeModel('posts1');
+        // LoaderService.openModel('posts1');
+        abortGetPosts = getAllPosts();
+        abortGetPosts.unwrap().then(() => {
+            // LoaderService.closeModel('posts1');
+        }).catch(() => {
+            // LoaderService.closeModel('posts1');
         });
+        // dispatchEvent(getPostsAPI()).then(() => {
+        //     LoaderService.closeModel('posts1');
+        // });
     }
     useEffect(() => {
         getPosts();
+        return () => {
+            abortGetPosts && abortGetPosts.abort();
+        }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
     

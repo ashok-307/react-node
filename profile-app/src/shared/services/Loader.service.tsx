@@ -30,7 +30,7 @@ export class LoaderService {
 
     public static openModel(key: string | number, options?: LoaderOptions) {
         this.options = Object.assign({}, this.defaults, options);
-        // console.log('OPtions :', this.options);
+
         if (this.keys.indexOf(key) === -1) {
             this.keys.push(key);
         }

@@ -1,60 +1,110 @@
-import React, { ChangeEvent, Fragment, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import React, { Fragment, useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { RouteAPI } from '../../core/constants/Route.api';
 import Alert from '../../shared/components/Alert';
+import FormControls from '../../shared/modules/Forms/FormControls';
 import { LoaderService } from '../../shared/services/Loader.service';
-import { createProfileAPI } from '../../store/slices/profile/profile';
+import { useCreateProfileAPIMutation } from '../../store/api/profile.api';
+// import { createProfileAPI } from '../../store/slices/profile/profile';
 
 function CreateProfile() {
-    let [formData, setFormData] = useState({
-        company: '',
-        website: '',
-        location: '',
-        status: '',
-        skills: '',
-        githubusername: '',
-        bio: '',
-        twitter: '',
-        facebook: '',
-        linkedin: '',
-        youtube: '',
-        instagram: ''
-    });
-
     let [displaySocialInputs, toggleSocialInputs] = useState(false);
+    let [onUpdateProfile] = useCreateProfileAPIMutation();
+    let abortUpdateProfile: any = null;
 
-    let {
-        bio,
-        company,
-        facebook, 
-        githubusername,
-        instagram,
-        linkedin,
-        location,
-        skills,
-        status,
-        twitter,
-        website,
-        youtube
-    } = formData;
+    let { handleSubmit, control, formState: {errors}} = useForm({
+        defaultValues: {
+            company: '',
+            website: '',
+            location: '',
+            status: '',
+            skills: '',
+            githubusername: '',
+            bio: '',
+            twitter: '',
+            facebook: '',
+            linkedin: '',
+            youtube: '',
+            instagram: ''
+        }
+    });
+    
+    let customErrorMessage: any = {
+        'skills': {
+            'required': 'Skills are required.'
+        }
+    };
 
+    let statuses: any[] = [
+        {
+            name: "* Select Professional Status",
+            value: "0"
+        },
+        {
+            name: "Developer",
+            value: "Developer"
+        },
+        {
+            name: "Junior Developer",
+            value: "Junior Developer"
+        },
+        {
+            name: "Senior Developer",
+            value: "Senior Developer"
+        },
+        {
+            name: "Manager",
+            value: "Manager"
+        },
+        {
+            name: "Student or Learning",
+            value: "Student or Learning"
+        },
+        {
+            name: "Instructor",
+            value: "Instructor0"
+        },
+        {
+            name: "Intern",
+            value: "Intern"
+        },
+        {
+            name: "Other",
+            value: "Other"
+        },
+    ];
     // let { isLoading: profileLoading } = useSelector((state: any) => state.profileReducer);
-    let dispatchEvent = useDispatch<any>();
+    // let dispatchEvent = useDispatch<any>();
     let navigate = useNavigate();
 
-    let onFormChange = (e: ChangeEvent<any>) => setFormData({...formData, [e.target.name]: e.target.value});
+    
+
+    let onErrorSubmit = (err: any) => {
+        console.log('error :', err);
+    }
+
+    useEffect(() => () => {
+        abortUpdateProfile && abortUpdateProfile.abort();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     let onSubmit = (e: any) => {
-        e.preventDefault();
-        LoaderService.openModel('createProfile1');
-        dispatchEvent(createProfileAPI({data: formData, edit: false, history: []})).then((res: any) => {
+        LoaderService.openModel('createProfile1', {appendTo: 'inline', appendToElement: '.load-createProfile'});
+        abortUpdateProfile = onUpdateProfile({data: e, isEdit: false});
+        abortUpdateProfile.unwrap().then(() => {
             LoaderService.closeModel('createProfile1');
-            if (!res.error) {
-                navigate(RouteAPI.Dashboard);
-            }
+            navigate(RouteAPI.Dashboard);
+        }).catch(() => {
+            LoaderService.closeModel('createProfile1');
         });
-    }
+        // dispatchEvent(createProfileAPI({data: e, edit: false, history: []})).then((res: any) => {
+        //     LoaderService.closeModel('createProfile1');
+        //     if (!res.error) {
+        //         navigate(RouteAPI.Dashboard);
+        //     }
+        // });
+    };
 
     return (
         <section className="container">
@@ -63,53 +113,106 @@ function CreateProfile() {
                 Create Your Profile
             </h1>
             <p className="lead">
-                <i className="fa fa-user"></i> Let's get some information to make your
-                profile stand out
+                <i className="fa fa-user"></i> Let's get some information to make your profile stand out
             </p>
             <small>* = required field</small>
-            <form className="form" onSubmit={(e) => onSubmit(e)}>
+            <form className="form" onSubmit={handleSubmit(onSubmit, onErrorSubmit)}>
                 <div className="form-group">
-                    <select name="status" value={status} onChange={(e) => onFormChange(e)}>
-                        <option value="0">* Select Professional Status</option>
-                        <option value="Developer">Developer</option>
-                        <option value="Junior Developer">Junior Developer</option>
-                        <option value="Senior Developer">Senior Developer</option>
-                        <option value="Manager">Manager</option>
-                        <option value="Student or Learning">Student or Learning</option>
-                        <option value="Instructor">Instructor or Teacher</option>
-                        <option value="Intern">Intern</option>
-                        <option value="Other">Other</option>
-                    </select>
+                    <FormControls
+                        name="status" 
+                        elementId="status"
+                        control={control} 
+                        elementType="select" 
+                        label="Status" 
+                        selectOptions={statuses}
+                        optionIdKey="value"
+                        optionNameKey="name"
+                        rules={{required: true}}
+                        isError={errors.status ? {
+                            type: errors.status.type,
+                            message: (customErrorMessage['status'] && customErrorMessage['status'][errors.status.type]) ? customErrorMessage['status'][errors.status.type] : errors.status.message
+                        } : undefined}
+                    />
                     <small className="form-text">Give us an idea of where you are at in your career</small>
                 </div>
                 <div className="form-group">
-                    <input type="text" placeholder="Company" name="company" value={company} onChange={(e) => onFormChange(e)} />
+                    <FormControls 
+                        name="company" 
+                        elementId="company"
+                        control={control} 
+                        label="Company" 
+                        isError={errors.company ? {
+                            type: errors.company.type, 
+                            message: customErrorMessage['company'] && customErrorMessage['company'][errors.company.type] ? customErrorMessage['company'][errors.company.type] : errors.company.message
+                        } : undefined}
+                    />
                     <small className="form-text">Could be your own company or one you work for</small>
                 </div>
                 <div className="form-group">
-                    <input type="text" placeholder="Website" name="website" value={website} onChange={(e) => onFormChange(e)} />
+                    <FormControls 
+                        name="website" 
+                        elementId="website"
+                        control={control} 
+                        label="Website" 
+                        isError={errors.website ? {
+                            type: errors.website.type, 
+                            message: customErrorMessage['website'] && customErrorMessage['website'][errors.website.type] ? customErrorMessage['website'][errors.website.type] : errors.website.message
+                        } : undefined}
+                    />
                     <small className="form-text">Could be your own or a company website</small>
                 </div>
                 <div className="form-group">
-                    <input type="text" placeholder="Location" name="location" value={location} onChange={(e) => onFormChange(e)} />
+                    <FormControls 
+                        name="location" 
+                        elementId="location"
+                        control={control} 
+                        label="Location" 
+                        isError={errors.location ? {
+                            type: errors.location.type, 
+                            message: customErrorMessage['location'] && customErrorMessage['location'][errors.location.type] ? customErrorMessage['location'][errors.location.type] : errors.location.message
+                        } : undefined}
+                    />
                     <small className="form-text">City & state suggested (eg. Boston, MA)</small>
                 </div>
                 <div className="form-group">
-                    <input type="text" placeholder="* Skills" name="skills" value={skills} onChange={(e) => onFormChange(e)} />
+                    <FormControls 
+                        name="skills" 
+                        elementId="skills"
+                        control={control} 
+                        label="Skills" 
+                        rules={{required: true}}
+                        isError={errors.skills ? {
+                            type: errors.skills.type, 
+                            message: customErrorMessage['skills'] && customErrorMessage['skills'][errors.skills.type] ? customErrorMessage['skills'][errors.skills.type] : errors.skills.message
+                        } : undefined}
+                    />
                     <small className="form-text">Please use comma separated values (eg.HTML,CSS,JavaScript,PHP)</small>
                 </div>
                 <div className="form-group">
-                    <input
-                        type="text"
-                        placeholder="Github Username"
+                    <FormControls
                         name="githubusername"
-                        value={githubusername}
-                        onChange={(e) => onFormChange(e)}
+                        elementId="githubusername"
+                        control={control} 
+                        label="Github Username" 
+                        isError={errors.githubusername ? {
+                            type: errors.githubusername.type, 
+                            message: customErrorMessage['githubusername'] && customErrorMessage['githubusername'][errors.githubusername.type] ? customErrorMessage['githubusername'][errors.githubusername.type] : errors.githubusername.message
+                        } : undefined}
                     />
                     <small className="form-text">If you want your latest repos and a Github link, include yourusername</small>
                 </div>
                 <div className="form-group">
-                    <textarea placeholder="A short bio of yourself" value={bio} onChange={(e) => onFormChange(e)} name="bio"></textarea>
+                    <FormControls 
+                        name="bio" 
+                        elementId="bio"
+                        control={control} 
+                        elementType="textarea" 
+                        label="A short bio of yourself"
+                        isError={errors.bio ? {
+                            type: errors.bio.type, 
+                            message: customErrorMessage['bio'] && customErrorMessage['bio'][errors.bio.type] ? customErrorMessage['bio'][errors.bio.type] : errors.bio.message
+                        } : undefined}
+                    />
                     <small className="form-text">Tell us a little about yourself</small>
                 </div>
 
@@ -122,33 +225,82 @@ function CreateProfile() {
                     displaySocialInputs ? <Fragment>
                         <div className="form-group social-input">
                             <i className="fa fa-twitter fa-2x"></i>
-                            <input type="text" placeholder="Twitter URL" name="twitter" value={twitter} onChange={(e) => onFormChange(e)} />
+                            <FormControls
+                                name="twitter" 
+                                elementId="twitter"
+                                elementType="input" 
+                                control={control} 
+                                label="Twitter URL" 
+                                isError={errors.twitter ? {
+                                    type: errors.twitter.type, 
+                                    message: customErrorMessage['twitter'] && customErrorMessage['twitter'][errors.twitter.type] ? customErrorMessage['twitter'][errors.twitter.type] : errors.twitter.message
+                                } : undefined}
+                            />
                         </div>
 
                         <div className="form-group social-input">
                             <i className="fa fa-facebook fa-2x"></i>
-                            <input type="text" placeholder="Facebook URL" name="facebook" value={facebook} onChange={(e) => onFormChange(e)} />
+                            <FormControls
+                                name="facebook" 
+                                elementId="facebook"
+                                elementType="input" 
+                                control={control} 
+                                label="Facebook URL" 
+                                isError={errors.facebook ? {
+                                    type: errors.facebook.type, 
+                                    message: customErrorMessage['facebook'] && customErrorMessage['facebook'][errors.facebook.type] ? customErrorMessage['facebook'][errors.facebook.type] : errors.facebook.message
+                                } : undefined}
+                            />
                         </div>
 
                         <div className="form-group social-input">
                             <i className="fa fa-youtube fa-2x"></i>
-                            <input type="text" placeholder="YouTube URL" name="youtube" value={youtube} onChange={(e) => onFormChange(e)} />
+                            <FormControls
+                                name="youtube" 
+                                elementId="youtube"
+                                elementType="input" 
+                                control={control} 
+                                label="YouTube URL" 
+                                isError={errors.youtube ? {
+                                    type: errors.youtube.type, 
+                                    message: customErrorMessage['youtube'] && customErrorMessage['youtube'][errors.youtube.type] ? customErrorMessage['youtube'][errors.youtube.type] : errors.youtube.message
+                                } : undefined}
+                            />
                         </div>
 
                         <div className="form-group social-input">
                             <i className="fa fa-linkedin fa-2x"></i>
-                            <input type="text" placeholder="Linkedin URL" name="linkedin" value={linkedin} onChange={(e) => onFormChange(e)} />
+                            <FormControls
+                                name="linkedin" 
+                                elementId="linkedin"
+                                elementType="input" 
+                                control={control} 
+                                label="Linkedin URL" 
+                                isError={errors.linkedin ? {
+                                    type: errors.linkedin.type, 
+                                    message: customErrorMessage['linkedin'] && customErrorMessage['linkedin'][errors.linkedin.type] ? customErrorMessage['linkedin'][errors.linkedin.type] : errors.linkedin.message
+                                } : undefined}
+                            />
                         </div>
 
                         <div className="form-group social-input">
                             <i className="fa fa-instagram fa-2x"></i>
-                            <input type="text" placeholder="Instagram URL" name="instagram" value={instagram} onChange={(e) => onFormChange(e)} />
+                            <FormControls
+                                name="instagram" 
+                                elementId="instagram"
+                                elementType="input" 
+                                control={control} 
+                                label="Instagram URL" 
+                                isError={errors.instagram ? {
+                                    type: errors.instagram.type, 
+                                    message: customErrorMessage['instagram'] && customErrorMessage['instagram'][errors.instagram.type] ? customErrorMessage['instagram'][errors.instagram.type] : errors.instagram.message
+                                } : undefined}
+                            />
                         </div>
                     </Fragment> : ''
                 }
 
-                
-                <input type="submit" className="btn btn-primary my-1" />
+                <button type="submit" className="btn btn-primary my-1">Submit <span className="load load-createProfile"></span></button>
                 <NavLink className="btn btn-light my-1" to={RouteAPI.Dashboard}>Go Back</NavLink>
             </form>
         </section>

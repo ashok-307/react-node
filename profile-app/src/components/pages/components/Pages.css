@@ -1,0 +1,15 @@
+.ABOUT {
+    background-color: #e5edf5;
+    padding: 15px;
+}
+table thead th {
+    font-weight: bold !important;
+}
+.table th {
+    border: 1px solid #ccc;
+}
+.table td {
+    background: var(--dark-color);
+    color: #fff;
+    opacity: 0.9;
+}

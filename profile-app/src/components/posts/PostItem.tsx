@@ -1,11 +1,12 @@
-import React, { Fragment, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux';
+import React, { Fragment, useEffect, useState } from 'react'
+import {  useSelector } from 'react-redux';
 import { RouteAPI } from '../../core/constants/Route.api';
 import Moment from 'react-moment';
 import { NavLink } from 'react-router-dom';
-import { removeLikeAPI, removePostAPI, updateLikeAPI } from '../../store/slices/post/post';
+// import { removeLikeAPI, removePostAPI, updateLikeAPI } from '../../store/slices/post/post';
 import { LoaderService } from '../../shared/services/Loader.service';
 import ConfirmDialog from '../../shared/models/ConfirmDialog';
+import { useRemoveLikeAPIMutation, useRemovePostAPIMutation, useUpdateLikeAPIMutation } from '../../store/api/post.api';
 
 interface PostItemProps {
     post: any;
@@ -14,17 +15,29 @@ interface PostItemProps {
 function PostItem(props: PostItemProps) {
     let { isAuthenticated, user: User } = useSelector((state: any) => state.authReducer);
     let { user, text, name, avatar, _id, like, comments, date } = props.post;
-    let dispatchEvent = useDispatch<any>();
+    // let dispatchEvent = useDispatch<any>();
     let [openDialog, setDialogState] = useState(false);
     let [deletePostId, setDeletePostId] = useState('');
 
+    let [onRemovePost] = useRemovePostAPIMutation();
+    let [onUpdateLike] = useUpdateLikeAPIMutation();
+    let [onRemoveLike] = useRemoveLikeAPIMutation();
+
+    let abortRemovePost: any = null;
+    let abortUpdateLike: any = null;
+    let abortRemoveLike: any = null;
+
     let addLike = (e: any, postId: string) => {
         e.preventDefault();
-        dispatchEvent(updateLikeAPI(postId));
+        abortUpdateLike = onUpdateLike(postId);
+        abortUpdateLike.unwrap().then(() => {});
+        // dispatchEvent(updateLikeAPI(postId));
     }
     let removeLike = (e: any, postId: string) => {
         e.preventDefault();
-        dispatchEvent(removeLikeAPI(postId));
+        abortRemoveLike = onRemoveLike(postId);
+        abortRemoveLike.unwrap().then(() => {});
+        // dispatchEvent(removeLikeAPI(postId));
     }
 
     let deletePost = (e: any, postId: string) => {
@@ -37,11 +50,24 @@ function PostItem(props: PostItemProps) {
         setDialogState(false);
         if (value) {
             LoaderService.openModel('deletePost', {appendTo: 'inline', appendToElement: 'button .load'});
-            dispatchEvent(removePostAPI(deletePostId)).then(() => {
+            abortRemovePost = onRemovePost(deletePostId);
+            abortRemovePost.unwrap().then(() => {
+                LoaderService.closeModel('deletePost');
+            }).catch(() => {
                 LoaderService.closeModel('deletePost');
             });
+            // dispatchEvent(removePostAPI(deletePostId)).then(() => {
+            //     LoaderService.closeModel('deletePost');
+            // });
         }
-      }
+    };
+
+    useEffect(() => () => {
+        abortUpdateLike && abortUpdateLike.abort();
+        abortRemoveLike && abortRemoveLike.abort();
+        abortRemovePost && abortRemovePost.abort();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
     return (
         <div className="post bg-white p-1 my-1">
             <div>

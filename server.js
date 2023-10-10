@@ -29,6 +29,9 @@ if (process.env.NODE_ENV === 'production') {
     })
 }
 
+// // "mongoURI": "mongodb+srv://ashokChakram307:Idonotknow1@reactconnector.9dyoa5t.mongodb.net/?retryWrites=true&w=majority",
+
+// "mongoURI": "mongodb://ashokChakram307:Idonotknow1@main-shard-00-00-03xkr.mongodb.net:27017,main-shard-00-01-03xkr.mongodb.net:27017,main-shard-00-02-03xkr.mongodb.net:27017/main?ssl=true&replicaSet=Main-shard-0&authSource=admin&retryWrites=true",
 app.listen(PORT, () => {
     console.log(`Server started on port ${PORT}`)
 });

@@ -13,4 +13,5 @@ export enum RouteAPI {
     About = '/pages/about',
     Service = '/pages/service',
     ContactUs = '/pages/contact-us',
+    ToDo = '/pages/to-do',
 }

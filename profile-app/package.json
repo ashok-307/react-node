@@ -47,7 +47,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "coverage": "react-scripts test --coverage --watchAll --collectCoverageFrom='src/components/**/*.{ts,tsx}' --collectCoverageFrom='!src/components/**/*.{api,model,constants}",
+    "jest-test": "jest --coverage --watchAll --collectCoverageFrom='src/components/**/*.{ts,tsx}' --collectCoverageFrom='!src/components/**/*.{api,model,constants}.{ts,tsx}'"
   },
   "eslintConfig": {
     "extends": [
@@ -69,6 +71,17 @@
   },
   "proxy": "http://localhost:2445",
   "devDependencies": {
-    "@types/uuid": "^8.3.4"
+    "@types/uuid": "^8.3.4",
+    "msw": "^1.2.1"
+  },
+  "jest": {
+    "coverageThreshold": {
+      "global": {
+        "branches": 80,
+        "functions": 801,
+        "lines": 80,
+        "statements": -10
+      }
+    }
   }
 }

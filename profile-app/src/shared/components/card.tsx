@@ -6,7 +6,6 @@ const Card:FunctionComponent<any>  = forwardRef((props, ref)=> {
     console.log('hii');
   };
 
-
   useImperativeHandle(ref, () => ({
     cardEle: ele.current,
     btnClick

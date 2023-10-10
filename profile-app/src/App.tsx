@@ -27,6 +27,7 @@ import ContactUs from './components/pages/components/ContactUs';
 import AboutChildFirst from './components/pages/subComponents/AboutChildFirst';
 import AboutChildSecond from './components/pages/subComponents/AboutChildSecond';
 import { getToken } from './store/slices/authSlice';
+import ToDo from './components/pages/components/To-do';
 
 function App() {
   let dispatchEvent = useDispatch<any>();
@@ -58,6 +59,7 @@ function App() {
           </Route>
           <Route path='service' element={<Service />} />
           <Route path='contact-us' element={<ContactUs />} />
+          <Route path='to-do' element={<ToDo />} />
         </Route>
         <Route path="/" index element={<Landing />} />
         <Route path="*" index element={<NotFound />} />

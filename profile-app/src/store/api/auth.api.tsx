@@ -1,7 +1,7 @@
 import { API } from "../../core/constants/API";
 import ReduxAPI from "./redux.api";
 
-export const AuthAPI = ReduxAPI.injectEndpoints({
+export const AuthAPI: any = ReduxAPI.injectEndpoints({
     endpoints: (builder) => ({
         login: builder.mutation({
             query: (payload: any) => {

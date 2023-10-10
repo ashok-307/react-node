@@ -58,12 +58,13 @@ const Login = () => {
   }
 
   useEffect(() => {
-    console.log(isAuthenticated);
     return () => {
       abortLogin && abortLogin.abort();
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAuthenticated]);
+  }, []);
+
+  console.log(isAuthenticated);
 
   return (
     <section className="container">
@@ -71,7 +72,7 @@ const Login = () => {
       <div className="row">
         <h1 className="large text-primary">Sign In</h1>
         <p className="lead"><i className="fa fa-user"></i> Sign into Your Account</p>
-        <form className="form" onSubmit={handleSubmit(onLogin)}>
+        <form className="form" aria-label="Form" onSubmit={handleSubmit(onLogin)}>
           <div className="form-group">
             <FormControls
               name="email" 

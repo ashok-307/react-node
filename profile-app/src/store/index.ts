@@ -1,4 +1,4 @@
-import { configureStore } from '@reduxjs/toolkit';
+import { configureStore, PreloadedState } from '@reduxjs/toolkit';
 // import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import ThunkMiddleWare from 'redux-thunk';
 
@@ -21,17 +21,36 @@ import ReduxAPI from './api/redux.api';
 //     [ReduxAPI.reducerPath]: ReduxAPI.reducer
 // });
 
-export  const store: any = configureStore({
-    reducer: {
-        // authReducer,
-        alertReducer,
-        postReducer: PostSlices,
-        authReducer: AuthSlices,
-        profileReducer: ProfileSlices,
-        [ReduxAPI.reducerPath]: ReduxAPI.reducer
-    },
+export function setUpStore(preloadState?: PreloadedState<any>) {
+    return configureStore({
+        reducer: {
+            // authReducer,
+            alertReducer,
+            postReducer: PostSlices,
+            authReducer: AuthSlices,
+            profileReducer: ProfileSlices,
+            [ReduxAPI.reducerPath]: ReduxAPI.reducer
+        },
+        middleware: (getMiddleware) => {
+            return [...getMiddleware(),ThunkMiddleWare, ReduxAPI.middleware]
+        },
+        preloadedState: preloadState,
+    });
+}
 
-    middleware: (getMiddleware) => {
-        return [...getMiddleware(),ThunkMiddleWare, ReduxAPI.middleware]
-    }
-});
+export type AppStore = ReturnType<typeof setUpStore>;
+export type AppDispatch = AppStore['dispatch'];
+
+// export  const store: any = configureStore({
+//     reducer: {
+//         // authReducer,
+//         alertReducer,
+//         postReducer: PostSlices,
+//         authReducer: AuthSlices,
+//         profileReducer: ProfileSlices,
+//         [ReduxAPI.reducerPath]: ReduxAPI.reducer
+//     },
+//     middleware: (getMiddleware) => {
+//         return [...getMiddleware(),ThunkMiddleWare, ReduxAPI.middleware]
+//     }
+// });

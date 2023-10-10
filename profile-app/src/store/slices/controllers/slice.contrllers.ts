@@ -1,4 +1,4 @@
-import { ActionReducerMapBuilder } from "@reduxjs/toolkit"
+import { ActionReducerMapBuilder, createAction } from "@reduxjs/toolkit"
 import { LoaderService } from "../../../shared/services/Loader.service";
 import { generateAction } from "./builder.action"
 
@@ -15,7 +15,7 @@ export const buildMatcher = function(
     ) {
     return () => {
         const matcher = generateAction(apiUrl, API, apiName);
-        builder.addMatcher(matcher.pending, (state, action) => {
+        builder.addMatcher(matcher.pending || createAction(apiUrl), (state, action) => {
             state.isLoading = true;
             if (isLoader) {
                 LoaderService.openModel(apiUrl);

@@ -6,14 +6,14 @@ import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 import reportWebVitals from './reportWebVitals';
 import { Provider } from 'react-redux';
 
-import {store} from './store/index';
+import {setUpStore} from './store/index';
 import axiosInterceptor from './core/http/http.interceptor';
 axiosInterceptor();
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 root.render(
-  <Provider store={store}>
+  <Provider store={setUpStore()}>
     <App />
   </Provider>
 );

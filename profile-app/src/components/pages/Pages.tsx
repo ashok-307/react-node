@@ -25,6 +25,10 @@ function Pages() {
         {
             name: 'Contact',
             url: RouteAPI.ContactUs
+        },
+        {
+            name: 'Todo',
+            url: RouteAPI.ToDo
         }
     ];
 
